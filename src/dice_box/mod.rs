@@ -4,19 +4,20 @@ use crate::dice_box::die::Die;
 
 pub struct DiceBox {
     dice: Vec<Die>,
-    bonus: u8
+    bonus: u8,
 }
 
 impl DiceBox {
     pub fn new(dice: Vec<Die>, bonus: u8) -> DiceBox {
-        DiceBox {dice, bonus}
+        DiceBox { dice, bonus }
     }
 
     pub fn from_string(input: String) -> DiceBox {
-        let dice_box = DiceBox { dice: Vec::new(), bonus: 0};
-        for ch in input.chars() {
-
-        }
+        let dice_box = DiceBox {
+            dice: Vec::new(),
+            bonus: 0,
+        };
+        for ch in input.chars() {}
         return dice_box;
     }
 

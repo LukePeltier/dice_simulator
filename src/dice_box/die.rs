@@ -4,12 +4,17 @@ pub struct Die {
     min_value: u8,
     max_value: u8,
     rerolls: u8,
-    bonus: u8
+    bonus: u8,
 }
 
 impl Die {
     pub fn new(min_value: u8, max_value: u8, rerolls: u8, bonus: u8) -> Die {
-        Die {min_value, max_value, rerolls, bonus}
+        Die {
+            min_value,
+            max_value,
+            rerolls,
+            bonus,
+        }
     }
 
     pub fn roll(&self) -> u8 {
@@ -20,7 +25,7 @@ impl Die {
                 let mut best_result: Option<u8> = None;
                 for _ in 0..self.rerolls {
                     let roll: u8 = rng.gen_range(self.min_value..=self.max_value);
-                    if roll > best_result.unwrap_or(0){
+                    if roll > best_result.unwrap_or(0) {
                         best_result = Some(roll);
                     }
                 }

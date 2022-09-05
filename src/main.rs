@@ -1,7 +1,7 @@
 mod dice_box;
 mod stats;
-use crate::dice_box::DiceBox;
 use crate::dice_box::die::Die;
+use crate::dice_box::DiceBox;
 use crate::stats::median;
 
 use core::panic;
@@ -22,7 +22,7 @@ fn main() {
             dice_string = args[1].clone();
             let received_iterations = args[2].clone();
             iterations = match received_iterations.parse::<f32>() {
-                Ok(res) => { res },
+                Ok(res) => res,
                 Err(_err) => {
                     println!("Could not find number, using default");
                     iterations
@@ -30,7 +30,7 @@ fn main() {
             };
             println!("Received dice string: {}", dice_string);
             println!("Using  iterations: {}", iterations);
-        },
+        }
         _ => {
             usage();
             return;
@@ -42,7 +42,7 @@ fn main() {
 
     let start_time = SystemTime::now();
 
-    for _ in 0..iterations as u32{
+    for _ in 0..iterations as u32 {
         let result: u32 = main_box.roll_dice();
         results.push(result);
     }
@@ -54,12 +54,12 @@ fn main() {
     }
 
     let median = median(&results);
-    let mean = sum as f32/iterations;
+    let mean = sum as f32 / iterations;
     let end_time = SystemTime::now();
 
-    let time_diff = match end_time.duration_since(start_time){
+    let time_diff = match end_time.duration_since(start_time) {
         Ok(duration) => duration,
-        Err(err) => panic!("Unable to compute time difference since start, {}", err)
+        Err(err) => panic!("Unable to compute time difference since start, {}", err),
     };
 
     println!("");
