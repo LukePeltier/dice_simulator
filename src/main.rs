@@ -1,10 +1,10 @@
 mod dice_box;
 mod stats;
-use crate::dice_box::die::Die;
 use crate::dice_box::DiceBox;
 use crate::stats::median;
 
 use core::panic;
+use std::collections::BTreeSet;
 use std::env;
 use std::time::SystemTime;
 
@@ -36,8 +36,7 @@ fn main() {
             return;
         }
     }
-    // let main_box = DiceBox::from_string(dice_string);
-    let main_box = DiceBox::new(vec![Die::new(1, 20, 0, 0)], 0);
+    let main_box = DiceBox::from_string(dice_string);
     let mut results: Vec<u32> = vec![];
 
     let start_time = SystemTime::now();
@@ -55,6 +54,22 @@ fn main() {
 
     let median = median(&results);
     let mean = sum as f32 / iterations;
+
+    let true_mean = main_box.get_mean();
+
+    let lowest_possible = main_box.get_lowest();
+    let highest_possible = main_box.get_highest();
+
+    let all_outcomes = main_box.get_all_outcomes();
+
+    let mut missing_outcomes: BTreeSet<u32> = BTreeSet::new();
+
+    for i in lowest_possible..=highest_possible {
+        if !all_outcomes.contains(&i) {
+            missing_outcomes.insert(i);
+        }
+    }
+
     let end_time = SystemTime::now();
 
     let time_diff = match end_time.duration_since(start_time) {
@@ -64,9 +79,16 @@ fn main() {
 
     println!("");
     println!("----------RESULTS----------");
-    println!("Median:   {}", median);
-    println!("Mean:     {}", mean);
+    println!("Median:           {}", median);
+    println!("Mean:             {}", mean);
+    println!("---------------------------");
+    println!("True Mean:        {}", true_mean);
+    println!("Min:              {}", lowest_possible);
+    println!("Max:              {}", highest_possible);
     println!("");
+    println!("Num of Outcomes:  {}", all_outcomes.len());
+
+    // println!("All Outcomes:     {}", all_outcomes);
     let total_seconds = time_diff.as_secs();
     let hours = total_seconds / 3600;
     let minutes_seconds = total_seconds % 3600;
