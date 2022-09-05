@@ -1,71 +1,15 @@
-use rand::prelude::*;
+mod dice_box;
+mod stats;
+use crate::dice_box::DiceBox;
+use crate::dice_box::die::Die;
+use crate::stats::median;
+
+use core::panic;
 use std::env;
-
-struct Die {
-    min_value: u8,
-    max_value: u8,
-    rerolls: u8,
-    bonus: u8
-}
-
-impl Die {
-    fn roll(&self) -> u8 {
-        let mut rng: ThreadRng = rand::thread_rng();
-        match self.rerolls {
-            0 => return rng.gen_range(self.min_value..=self.max_value) + self.bonus,
-            _ => {
-                let mut best_result: Option<u8> = None;
-                for _ in 0..self.rerolls {
-                    let roll: u8 = rng.gen_range(self.min_value..=self.max_value);
-                    if roll > best_result.unwrap_or(0){
-                        best_result = Some(roll);
-                    }
-                }
-                return best_result.unwrap_or(0) + self.bonus;
-            }
-        }
-    }
-}
-
-struct DiceBox {
-    dice: Vec<Die>,
-    bonus: u8
-}
-
-impl DiceBox {
-    fn from_string(input: String) -> DiceBox {
-        let dice_box = DiceBox { dice: Vec::new(), bonus: 0};
-        for ch in input.chars() {
-
-        }
-        return dice_box;
-    }
-
-    fn roll_dice(&self) -> u32 {
-        let mut results: u32 = 0;
-        for die in &self.dice {
-            results += die.roll() as u32;
-        }
-        return results + self.bonus as u32;
-    }
-}
-
-
-fn median(data: &Vec<u32>) -> u32 {
-    let mut sorted: Vec<u32> = data.clone();
-
-    sorted.sort();
-
-    let middle = (((sorted.len()-1) as f32)/2.0).round() as usize;
-
-    match sorted.get(middle) {
-        Some(x) => *x,
-        None => 0
-    }
-}
+use std::time::SystemTime;
 
 fn usage() {
-    println!("Usage: dice_simulator [dice string] [iterations]")
+    println!("Usage: dice_simulator [dice string] [iterations]");
 }
 
 fn main() {
@@ -93,14 +37,15 @@ fn main() {
         }
     }
     // let main_box = DiceBox::from_string(dice_string);
-    let main_box = DiceBox { dice: vec![Die{min_value: 1, max_value: 20, rerolls: 0, bonus: 0}], bonus: 0};
+    let main_box = DiceBox::new(vec![Die::new(1, 20, 0, 0)], 0);
     let mut results: Vec<u32> = vec![];
+
+    let start_time = SystemTime::now();
 
     for _ in 0..iterations as u32{
         let result: u32 = main_box.roll_dice();
         results.push(result);
     }
-
 
     let mut sum: u64 = 0;
 
@@ -108,6 +53,24 @@ fn main() {
         sum += result as u64;
     }
 
-    println!("Median:   {}", median(&results));
-    println!("Mean:     {}", sum as f32/iterations);
+    let median = median(&results);
+    let mean = sum as f32/iterations;
+    let end_time = SystemTime::now();
+
+    let time_diff = match end_time.duration_since(start_time){
+        Ok(duration) => duration,
+        Err(err) => panic!("Unable to compute time difference since start, {}", err)
+    };
+
+    println!("");
+    println!("----------RESULTS----------");
+    println!("Median:   {}", median);
+    println!("Mean:     {}", mean);
+    println!("");
+    let total_seconds = time_diff.as_secs();
+    let hours = total_seconds / 3600;
+    let minutes_seconds = total_seconds % 3600;
+    let minutes = minutes_seconds / 60;
+    let seconds = minutes_seconds % 60;
+    println!("Time to calculate: {}h {}m {}s ", hours, minutes, seconds);
 }
